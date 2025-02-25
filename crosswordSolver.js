@@ -1,12 +1,12 @@
 function checkWords(words) {
-    const pattern = /^[a-z]+$/
-    if (!(Array.isArray(words)) || words.length === 0) {
+    const pattern = /^[^a-z]+$/
+    if ((!(Array.isArray(words)) && (!(words instanceof Set))) || words.length === 0) {
         return false
     }
     for (let i = 0; i < words.length - 1; i++) {
         if (typeof words[i] !== 'string') {
             return false
-        } else if (!(pattern.test(words[i]))) {
+        } else if (pattern.test(words[i])) {
             return false
         }
         for (let j = i + 1; j < words.length; j++) {
@@ -77,9 +77,17 @@ function checkLength(emptyPuzzle , words) {
         }
     }
 
-    for (let i = 0 ; i < words.length ; i++) {
-        for (let j = 0 ; j < words[i].length ; j++) {
-            wordsCounter++
+    if (Array.isArray(words)) {
+        for (let i = 0 ; i < words.length ; i++) {
+            for (let j = 0 ; j < words[i].length ; j++) {
+                wordsCounter++
+            }
+        }
+    } else {
+        for (let word of words) {
+            for (let i = 0 ; i < word.length ; i++) {
+                wordsCounter++
+            }
         }
     }
     return puzzleCounter === wordsCounter
@@ -90,5 +98,17 @@ function validateAll(emptyPuzzle , words) {
     return checkWords(words) && checkPuzzle(emptyPuzzle) && validStarts(emptyPuzzle) && checkLength(emptyPuzzle , words)
 }
 
+
+function SetToArray(words) {
+    let result = []
+    if (words instanceof Set) {
+        for (let word of words) {
+            result.push(word)
+        }
+    } else {
+        return words
+    }
+    return result
+}
 
 
