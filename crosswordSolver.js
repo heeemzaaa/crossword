@@ -1,3 +1,7 @@
+// ********** Start of validation part ********** //
+
+
+// this function checks if the table of words is valid
 function checkWords(words) {
     const pattern = /^[^a-z]+$/
     if ((!(Array.isArray(words)) && (!(words instanceof Set))) || words.length === 0) {
@@ -18,7 +22,7 @@ function checkWords(words) {
     return true
 }
 
-
+// this function checks if the puzzle is valid
 function checkPuzzle(emptyPuzzle) {
     let validInputs = /^[.012\n]+$/
     if ((typeof emptyPuzzle !== 'string') || (emptyPuzzle === "")) {
@@ -27,11 +31,12 @@ function checkPuzzle(emptyPuzzle) {
     return validInputs.test(emptyPuzzle)
 }
 
+// this function splits the puzzle 
 function splitPuzzle(emptyPuzzle) {
     let lines = emptyPuzzle.split('\n')
     let holder = []
     let result = []
-    for (let i = 0 ; i < lines.length ; i++) {
+    for (let i = 0; i < lines.length; i++) {
         holder.push(...lines[i])
         result.push(holder)
         holder = []
@@ -39,6 +44,7 @@ function splitPuzzle(emptyPuzzle) {
     return result
 }
 
+// this function checks the start of the word if it's valid
 function validStarts(emptyPuzzle) {
     validPuzzle = checkPuzzle(emptyPuzzle)
     if (!validPuzzle) {
@@ -47,12 +53,23 @@ function validStarts(emptyPuzzle) {
     emptyPuzzle = splitPuzzle(emptyPuzzle)
     for (let i = 0; i < emptyPuzzle.length; i++) {
         for (let j = 0; j < emptyPuzzle[i].length; j++) {
+            //case 1
             if (emptyPuzzle[i][j] === '1') {
-                if ((emptyPuzzle[i][j+1] === '.') && (emptyPuzzle[i+1][j] === '.')) {
+                // checks if 1 is the last character in x and y
+                if (i === emptyPuzzle.length - 1 && j === emptyPuzzle[i].length - 1) {
+                    return false
+                }
+                // checks if at least one of the following is valid
+                if ((emptyPuzzle[i][j + 1] === '.') && (emptyPuzzle[i + 1][j] === '.')) {
                     return false
                 }
             } else if (emptyPuzzle[i][j] === '2') {
-                if ((emptyPuzzle[i][j+1] === '.') || (emptyPuzzle[i+1][j] === '.')) {
+                // checks if any case of 2 is in the last 
+                if (i === emptyPuzzle.length - 1 || j === emptyPuzzle[i].length - 1) {
+                    return false
+                }
+                // checks if at least one of the following is valid
+                if ((emptyPuzzle[i][j + 1] === '.') || (emptyPuzzle[i + 1][j] === '.')) {
                     return false
                 }
             }
@@ -61,31 +78,35 @@ function validStarts(emptyPuzzle) {
     return true
 }
 
-function checkLength(emptyPuzzle , words) {
+// this function checks if the length of the puzzle  and the words are equals
+function checkLength(emptyPuzzle, words) {
     emptyPuzzle = splitPuzzle(emptyPuzzle)
     let puzzleCounter = 0
     let wordsCounter = 0
-    for (let i = 0 ; i < emptyPuzzle.length ; i++) {
-        for (let j = 0 ; j < emptyPuzzle[i].length ; j++) {
+    for (let i = 0; i < emptyPuzzle.length; i++) {
+        for (let j = 0; j < emptyPuzzle[i].length; j++) {
+            // slot = 1
             if (emptyPuzzle[i][j] === '0') {
                 puzzleCounter++
+                //slot = 2
             } else if (emptyPuzzle[i][j] === '1') {
-                puzzleCounter+=2
+                puzzleCounter += 2
+                //slot = 3
             } else if (emptyPuzzle[i][j] === '2') {
-                puzzleCounter+=3
+                puzzleCounter += 3
             }
         }
     }
 
     if (Array.isArray(words)) {
-        for (let i = 0 ; i < words.length ; i++) {
-            for (let j = 0 ; j < words[i].length ; j++) {
+        for (let i = 0; i < words.length; i++) {
+            for (let j = 0; j < words[i].length; j++) {
                 wordsCounter++
             }
         }
     } else {
         for (let word of words) {
-            for (let i = 0 ; i < word.length ; i++) {
+            for (let i = 0; i < word.length; i++) {
                 wordsCounter++
             }
         }
@@ -93,12 +114,7 @@ function checkLength(emptyPuzzle , words) {
     return puzzleCounter === wordsCounter
 }
 
-
-function validateAll(emptyPuzzle , words) {
-    return checkWords(words) && checkPuzzle(emptyPuzzle) && validStarts(emptyPuzzle) && checkLength(emptyPuzzle , words)
-}
-
-
+// this function checks if the the type is set and convert it to an array
 function SetToArray(words) {
     let result = []
     if (words instanceof Set) {
@@ -111,15 +127,25 @@ function SetToArray(words) {
     return result
 }
 
+// if all is valid we pass to the logic , else we type Error
+function validateAll(emptyPuzzle, words) {
+    return checkWords(words) && checkPuzzle(emptyPuzzle) && validStarts(emptyPuzzle) && checkLength(emptyPuzzle, words)
+}
 
-///////////////////////////////////
 
+
+
+// ********** Start of the algorithm part ********** //
 
 const crosswordSolver = (puzzle, words) => {
     if (!validateAll(puzzle, words)) {
         console.log('Error')
         return
-    }  
+    }
+
+    if (words instanceof Set) {
+        words = SetToArray(words)
+    }
     // Parse the puzzle into a 2D grid
     const grid = splitPuzzle(puzzle)
 
@@ -140,7 +166,7 @@ const crosswordSolver = (puzzle, words) => {
     }
 
     // Step 5: Apply backtracking for remaining slots
-    const filledSlots = backtrackSolve(slots, grid)
+    const filledSlots = backtrackSolve(slots, grid, puzzle)
 
     // If solution found, update the grid
     if (filledSlots) {
@@ -152,8 +178,10 @@ const crosswordSolver = (puzzle, words) => {
     }
 
     // Step 6: Convert the solution back to a string
-    return gridToString(grid);
+    console.log(gridToString(grid));
 }
+
+// grouping all the available words in an object of arrays
 
 const groupWordsByLength = (words) => {
     const result = {}
@@ -169,6 +197,7 @@ const groupWordsByLength = (words) => {
     return result
 }
 
+// indentify all slots and groupping them in an array of objects
 const identifySlots = (grid, wordsByLength) => {
     const slots = []
     const height = grid.length
@@ -238,7 +267,7 @@ const identifySlots = (grid, wordsByLength) => {
                 } else {
                     // If there are no words of this length, use an empty array
                     possibleWords = [];
-                }
+                } Error
 
                 slots.push({
                     start,
@@ -258,6 +287,9 @@ const identifySlots = (grid, wordsByLength) => {
 
     return slots;
 }
+
+// Start of constraint propagation algorithm
+//  Unique lenght constraint
 
 const applyUniqueLengthConstraint = (slots, grid) => {
     let modified = false;
@@ -289,6 +321,8 @@ const applyUniqueLengthConstraint = (slots, grid) => {
 
     return modified
 }
+
+// matching pattern constraint
 
 const applyPatternConstraint = (slots, grid) => {
     let modified = false
@@ -330,6 +364,8 @@ const applyPatternConstraint = (slots, grid) => {
     return modified
 }
 
+// Getting the slot's pattern
+
 const getCurrentPattern = (grid, slot) => {
     const [startY, startX] = slot.start
     const pattern = []
@@ -346,6 +382,8 @@ const getCurrentPattern = (grid, slot) => {
 
     return pattern
 }
+
+// Checking if the words match the slot's pattern
 
 const matchesPattern = (word, pattern) => {
     if (word.length !== pattern.length) {
@@ -365,6 +403,8 @@ const matchesPattern = (word, pattern) => {
     return true
 }
 
+
+// place a word in the wanted slot
 const placeWord = (grid, slot, word) => {
     const [startY, startX] = slot.start
 
@@ -379,7 +419,8 @@ const placeWord = (grid, slot, word) => {
     }
 }
 
-const backtrackSolve = (slots, grid) => {
+// chek if the backtracking function solved our puzzle
+const backtrackSolve = (slots, grid, puzzle) => {
     // Sort slots by number of possible words (min first)
     const unfilledSlots = slots.filter(slot => !slot.word)
         .sort((a, b) => a.possibleWords.length - b.possibleWords.length)
@@ -391,7 +432,7 @@ const backtrackSolve = (slots, grid) => {
     // Make a copy of the grid for backtracking
     const gridCopy = grid.map(row => [...row])
 
-    if (backtrack(slots, unfilledSlots, 0, gridCopy)) {
+    if (backtrack(slots, unfilledSlots, 0, gridCopy, puzzle)) {
         return slots
     } else {
         return null
@@ -399,7 +440,9 @@ const backtrackSolve = (slots, grid) => {
 
 }
 
-const backtrack = (allSlots, unfilledSlots, index, grid) => {
+
+// implement the logic of backtracking
+const backtrack = (allSlots, unfilledSlots, index, grid, puzzle) => {
     // If we've filled all slots, we're done
     if (index >= unfilledSlots.length) return true
 
@@ -426,7 +469,7 @@ const backtrack = (allSlots, unfilledSlots, index, grid) => {
             })
 
             // Continue with the next slot
-            if (backtrack(allSlots, unfilledSlots, index + 1, grid)) {
+            if (backtrack(allSlots, unfilledSlots, index + 1, grid, puzzle)) {
                 return true;
             }
 
@@ -462,6 +505,8 @@ const backtrack = (allSlots, unfilledSlots, index, grid) => {
     return false // No solution found for this path
 }
 
+
+// checks if the word can be placed in the slot
 const canPlaceWord = (grid, slot, word) => {
     const [startY, startX] = slot.start;
 
@@ -486,10 +531,11 @@ const canPlaceWord = (grid, slot, word) => {
     return true;
 }
 
+// convert a grid to a string
 const gridToString = (grid) => {
     return grid.map(row => row.join('')).join('\n')
 }
 
 
-odule.exports = { crosswordSolver }
+
 

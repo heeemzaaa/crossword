@@ -102,4 +102,9 @@ This project demonstrates how **constraint propagation** and **backtracking** ca
 
 ---
 
+## Authors
+    - **Hamza Elkhawlani** [GitHub Profile](https://github.com/heeemzaaa)
+    - **Mohammed-Amine Elayachi** [GitHub Profile](https://github.com/kenji20thh)
+
+
 
